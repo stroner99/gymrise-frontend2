@@ -246,7 +246,7 @@ export default {
         this.peticiones.url = "personal-trainer/add";
 
       } else if (this.datos.tipo == "Deportista") {
-        sexo = "";
+        var sexo = "";
         if (this.datos.sex == "Hombre") {
           sexo = "male";
         } else if (this.datos.sex == "Mujer") {
