@@ -254,7 +254,7 @@ export default {
         } else {
           sexo = "other";
         }
-        post = {
+        this.peticiones.post = {
           name: this.datos.name,
           surname: this.datos.surname,
           dni: this.datos.dni,
