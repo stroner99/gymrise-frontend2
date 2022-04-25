@@ -16,7 +16,7 @@ export default new Vuex.Store({
       if (path == "")
         return "";
       // var url = "http://localhost:3000/" + path;
-      // var url = "http://localhost:3000/" + path;
+      var url = "http://localhost:3000/" + path;
       switch (method) {
         case 'GET':
           if (headers)

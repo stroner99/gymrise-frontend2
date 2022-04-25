@@ -232,8 +232,6 @@ export default {
         },
       };
 
-
-
       if (this.datos.tipo == "Entrenador") {
         this.peticiones.post = {
           name: this.datos.name,
