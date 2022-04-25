@@ -3,6 +3,11 @@ import VueRouter from 'vue-router'
 import Login from '../components/Login.vue'
 import Registrarse from '../components/Registrarse.vue'
 import Datos from '../components/Datos.vue'
+import Sesiones from '../components/Sesiones.vue'
+import MisSesiones from '../components/MisSesiones.vue'
+import Monitores from '../components/Monitores'
+import CrearSesion from '../components/CrearSesion.vue'
+import Contratos from '../components/Contratos.vue'
 
 Vue.use(VueRouter)
 
@@ -25,7 +30,33 @@ const routes = [
     path: '/datos',
     name: 'datos',
     component: Datos
-  }
+  },
+  {
+    path: '/sesion',
+    name: 'sesion',
+    component: Sesiones
+  },
+  {
+    path: '/misSesiones',
+    name:  'misSesiones',
+    component: MisSesiones
+  },
+  {
+    path: '/monitores',
+    name: 'monitores',
+    component: Monitores
+  },
+  {
+    path: '/crearSesion',
+    name: 'crearSesion',
+    component: CrearSesion
+  },
+  {
+    path: '/contratos',
+    name: 'contratos',
+    component: Contratos
+  },
+  
 
 ]
 

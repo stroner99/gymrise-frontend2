@@ -196,7 +196,7 @@
 </template>
 
 <script>
-module.exports = {
+export default {
   data: function data() {
     return {
       datos: {
@@ -215,42 +215,70 @@ module.exports = {
       },
       sex: ["Hombre", "Mujer", "Otro"],
       tipo: ["Entrenador", "Deportista"],
+      peticiones: {
+        headers: null,
+        url: "",
+        post: null,
+      },
     };
   },
   methods: {
     async onSubmit(event) {
       event.preventDefault();
+
+      this.peticiones.headers = {
+        headers: {
+          Authorization: "Bearer " + this.$cookies.get("token"),
+        },
+      };
+
+
+
       if (this.datos.tipo == "Entrenador") {
-        post = {
-          name: this.name,
-          surname: this.surname,
-          dni: this.dni,
-          password: this.password,
-          email: this.email,
-          description: this.description,
+        this.peticiones.post = {
+          name: this.datos.name,
+          surname: this.datos.surname,
+          dni: this.datos.dni,
+          password: this.datos.password,
+          email: this.datos.email,
+          description: this.datos.description,
         };
-        //prueba de axios
-        await this.axios
-          .get("https://gymrise-backend.herokuapp.com/client")
-          .then((result) => {
-            console.log(result.data);
-          });
-        window.location.href = "/login";
+        this.peticiones.url = "personal-trainer/add";
+
       } else if (this.datos.tipo == "Deportista") {
+        sexo = "";
+        if (this.datos.sex == "Hombre") {
+          sexo = "male";
+        } else if (this.datos.sex == "Mujer") {
+          sexo = "female";
+        } else {
+          sexo = "other";
+        }
         post = {
-          name: this.name,
-          surname: this.surname,
-          dni: this.dni,
-          password: this.password,
-          email: this.email,
-          description: this.description,
-          height: this.height,
-          weight: this.weight,
-          sex: this.sex,
-          age: this.age,
+          name: this.datos.name,
+          surname: this.datos.surname,
+          dni: this.datos.dni,
+          password: this.datos.password,
+          email: this.datos.email,
+          description: this.datos.description,
+          height: this.datos.height,
+          weight: this.datos.weight,
+          sex: sexo,
+          age: this.datos.age,
         };
-        window.location.href = "/login";
+        this.peticiones.url = "client/add";
       }
+
+      let response = await this.$store.getters.llamada_api(
+        this.peticiones.url,
+        "POST",
+        this.peticiones.post,
+        this.headers
+      );
+
+      if(response.status=="201")
+        window.location.href = "/login";
+        
     },
   },
   computed: {},

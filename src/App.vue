@@ -7,7 +7,7 @@
       variant="dark"
     >
       <b-navbar-brand disabled style="margin-left: 20px">
-        Hola {{ this.$cookies.get("user") }}</b-navbar-brand
+        Hola {{ this.$cookies.get("user").name }}</b-navbar-brand
       >
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
@@ -15,6 +15,10 @@
         <b-container>
           <b-navbar-nav>
             <b-nav-item :to="{ name: 'datos' }">Perfil</b-nav-item>
+            <b-nav-item :to="{ name: 'misSesiones' }">Mis Sesiones</b-nav-item>
+            <b-nav-item v-if="this.$cookies.get('tipo')=='Deportista'" :to="{ name: 'sesion' }">Sesiones</b-nav-item>
+            <b-nav-item v-if="this.$cookies.get('tipo')=='Deportista'" :to="{ name: 'monitores' }">Monitores</b-nav-item>
+            <b-nav-item :to="{ name: 'contratos' }">Contratos</b-nav-item>
             <b-nav-item @click="salir">Salir</b-nav-item>
           </b-navbar-nav>
         </b-container>
@@ -30,10 +34,12 @@ module.exports = {
     return {};
   },
   methods: {
-    salir(){
+    salir() {
+      this.$cookies.set("tipo", "", "1h");
+      this.$cookies.set("token", "", "1h");
       this.$cookies.set("user", "", "1h");
       window.location.href = "/login";
-    }
+    },
   },
   computed: {},
   components: {},

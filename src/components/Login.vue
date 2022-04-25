@@ -16,7 +16,7 @@
         <b>Accede a tu cuenta</b>
       </h2>
       <br />
-      <b-form style="width: 100%; max-width: 450px" @submit="onSubmit">
+      <b-form style="width: 100%; max-width: 450px">
         <div
           class="fondo_input"
           style="
@@ -28,25 +28,43 @@
             row-gap: 15px;
           "
         >
-          <p class="titulo_form_2">Usuario:</p>
+          <p class="titulo_form_2">Email:</p>
           <b-form-input
             class="inputs"
             v-model="user"
             type="text"
             placeholder="Email"
+            required
           ></b-form-input>
 
           <p class="titulo_form_2">Contraseña:</p>
-          <b-form-input
-            class="inputs"
-            v-model="password"
-            type="password"
-            placeholder="Contraseña"
-          ></b-form-input>
+          <b-form-group invalid-feedback="Usuario o contraseña incorrecta">
+            <b-form-input
+              class="inputs"
+              v-model="password"
+              type="password"
+              placeholder="Contraseña"
+              :state="invalidPassword"
+              required
+            ></b-form-input>
+          </b-form-group>
+
+          <div style="grid-column: 1/3">
+            <b-form-group label="Eres:" v-slot="{ ariaDescribedby }">
+              <b-form-radio-group
+                v-model="selected"
+                :options="options"
+                :aria-describedby="ariaDescribedby"
+                name="plain-inline"
+                plain
+                required
+              ></b-form-radio-group>
+            </b-form-group>
+          </div>
           <b-button @click="registrarse" class="boton_acceder"
             >Registrarse</b-button
           >
-          <b-button type="submit" class="boton_acceder">Acceder</b-button>
+          <b-button @click="login" class="boton_acceder">Acceder</b-button>
         </div>
       </b-form>
     </div>
@@ -54,24 +72,37 @@
 </template>
 
 <script>
-module.exports = {
+export default  {
   data: function data() {
     return {
       user: "",
       password: "",
+      selected: "Deportista",
+      options: [
+        { text: "Deportista", value: "Deportista" },
+        { text: "Entrenador", value: "Entrenador" },
+      ],
+      invalid: {
+        password: null,
+      },
     };
   },
   methods: {
-    onSubmit(event) {
-      event.preventDefault();
-      post = {
+    async login() {
+      var post = {
         email: this.user,
-        password: this.password
-      }
-      //post creado para luego hacer el axio
-      if (this.user == "admin" && this.password == "admin") {
-        this.$cookies.set("user", this.user, "1h");
-        window.location.href = "/datos";
+        password: this.password,
+        role: this.selected.toUpperCase(),
+      };      
+      let response = await this.$store.getters.llamada_api("auth/login", "POST", post);
+      if(response.status=='201'){
+          this.$cookies.set("user", response.data, "1h");
+          this.$cookies.set("tipo", this.selected, "1h");
+          this.$cookies.set("token", response.data.accessToken, "1h");
+          window.location.href = "/datos";
+
+      } else {
+        this.invalid.password = false;
       }
     },
     registrarse(event) {
@@ -79,12 +110,17 @@ module.exports = {
       window.location.href = "/registrarse";
     },
   },
-  computed: {},
+  computed: {
+    invalidPassword() {
+      return this.invalid.password;
+    },
+  },
 };
 </script>
 
 <style scope>
-input, button {
+input,
+button {
   border-radius: 20px !important;
 }
 p {
@@ -110,7 +146,7 @@ p {
   background-color: rgba(0, 0, 0, 0.2);
   z-index: -9;
 }
-.fondo_input { 
+.fondo_input {
   background-color: rgba(255, 255, 255, 0.4);
   z-index: -1;
 }

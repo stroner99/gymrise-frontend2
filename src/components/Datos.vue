@@ -15,7 +15,12 @@
     >
       <b-form style="width: 100%; max-width: 650px" @submit="onSubmit">
         <h3>Tus datos</h3>
-        <div style="display: grid; grid-template-columns: 200px 350px">
+        <div
+          style="
+            display: grid;
+            grid-template-columns: 100px minmax(auto, 350px);
+          "
+        >
           <p>Nombre:</p>
           <b-form-group style="margin-block: 10px; width: 100%">
             <b-form-input
@@ -28,7 +33,12 @@
             ></b-form-input>
           </b-form-group>
         </div>
-        <div style="display: grid; grid-template-columns: 200px 350px">
+        <div
+          style="
+            display: grid;
+            grid-template-columns: 100px minmax(auto, 350px);
+          "
+        >
           <p>Apellidos:</p>
           <b-form-group style="margin-block: 10px; width: 100%">
             <b-form-input
@@ -41,7 +51,12 @@
             ></b-form-input>
           </b-form-group>
         </div>
-        <div style="display: grid; grid-template-columns: 200px 350px">
+        <div
+          style="
+            display: grid;
+            grid-template-columns: 100px minmax(auto, 350px);
+          "
+        >
           <p>DNI/NIF:</p>
           <b-form-group style="margin-block: 10px; width: 100%">
             <b-form-input
@@ -54,7 +69,12 @@
             ></b-form-input>
           </b-form-group>
         </div>
-        <div style="display: grid; grid-template-columns: 200px 350px">
+        <div
+          style="
+            display: grid;
+            grid-template-columns: 100px minmax(auto, 350px);
+          "
+        >
           <p>Email:</p>
           <b-form-group style="margin-block: 10px; width: 100%">
             <b-form-input
@@ -66,7 +86,12 @@
             ></b-form-input>
           </b-form-group>
         </div>
-        <div style="display: grid; grid-template-columns: 200px 350px">
+        <div
+          style="
+            display: grid;
+            grid-template-columns: 100px minmax(auto, 350px);
+          "
+        >
           <p>Descripción:</p>
           <b-form-group style="margin-block: 10px; width: 100%">
             <b-form-input
@@ -78,11 +103,11 @@
             ></b-form-input>
           </b-form-group>
         </div>
-        <div v-if="datos.tipo == 'Deportista'">
+        <div v-if="tipo == 'Deportista'">
           <div
             style="
               display: grid;
-              grid-template-columns: 200px 120px 110px 120px;
+              grid-template-columns: 100px minmax(65px, 120px) minmax(50px,110px) minmax(65px, 120px);
             "
           >
             <p>Altura:</p>
@@ -109,7 +134,7 @@
           <div
             style="
               display: grid;
-              grid-template-columns: 200px 120px 110px 120px;
+              grid-template-columns: 100px minmax(65px, 120px) minmax(50px,110px) minmax(65px, 120px);
             "
           >
             <p>Sexo:</p>
@@ -170,64 +195,119 @@
 </template>
 
 <script>
-//Cuando sepa como funcionan las urls hacer un create con el axios para recuperar
-module.exports = {
+
+export default {
+  
   data: function data() {
     return {
+      tipo: "",
       datos: {
-        name: "Sergi",
-        surname: "Velló Cardús",
-        dni: "20087876K",
-        email: "sergivello@gmail.com",
-        description: "Las patatas describen mi vida",
-        height: "172",
-        weight: "52.6",
-        sex: "Hombre",
-        age: "22",
-        tipo: "Deportista",
+        name: "",
+        surname: "",
+        dni: "",
+        email: "",
+        description: "",
+        height: "",
+        weight: "",
+        sex: "",
+        age: "",
       },
       sex: ["Hombre", "Mujer", "Otro"],
       tipo: ["Entrenador", "Deportista"],
+      peticiones:{
+        headers: null,
+        url: "",
+        post: null,
+      }
     };
+  },
+  async created() {
+    this.tipo = this.$cookies.get("tipo");
+    this.peticiones.headers = {
+      headers: {
+      Authorization: "Bearer " + this.$cookies.get("token"),
+      },
+    };
+    if (this.tipo == "Entrenador") {
+      this.peticiones.url = "personal-trainer/" + this.$cookies.get("user").dni;
+    } else if (this.tipo == "Deportista") {
+      this.peticiones.url = "client/" + this.$cookies.get("user").dni;
+    }
+
+    let response = await this.$store.getters.llamada_api(
+      this.peticiones.url,
+      "GET",
+      null,
+      this.peticiones.headers
+    );
+
+    this.datos = {
+      name: response.data.name,
+      surname: response.data.surname,
+      dni: response.data.dni,
+      email: response.data.email,
+      description: response.data.description,
+      height: response.data.height,
+      weight: response.data.weight,
+      sex: "Hombre",
+      age: response.data.age,
+    };
+    if (response.data.sex == "male") {
+      this.datos.sex = "Hombre";
+    } else if (response.data.sex == "female") {
+      this.datos.sex = "Mujer";
+    } else {
+      this.datos.sex = "Otro";
+    }
   },
   methods: {
     async onSubmit(event) {
       event.preventDefault();
-      if (this.datos.tipo == "Entrenador") {
-        post = {
-          name: this.name,
-          surname: this.surname,
-          dni: this.dni,
-          password: this.password,
-          email: this.email,
-          description: this.description,
+      if (this.tipo == "Entrenador") {
+        this.peticiones.post = {
+          name: this.datos.name,
+          surname: this.datos.surname,
+          description: this.datos.description,
         };
-        //prueba de axios
-        await this.axios
-          .get("https://api.coindesk.com/v1/bpi/currentprice.json")
-          .then((result) => {
-            console.log(result.data);
-          });
-        window.location.href = "/login";
-      } else if (this.datos.tipo == "Deportista") {
-        post = {
-          name: this.name,
-          surname: this.surname,
-          dni: this.dni,
-          password: this.password,
-          email: this.email,
-          description: this.description,
-          height: this.height,
-          weight: this.weight,
-          sex: this.sex,
-          age: this.age,
+        this.peticiones.url = "personal-trainer/update/" + this.datos.dni;
+      } else if (this.tipo == "Deportista") {
+        this.peticiones.post = {
+          name: this.datos.name,
+          surname: this.datos.surname,
+          description: this.datos.description,
+          height: this.datos.height,
+          weight: this.datos.weight,
+          sex: "male",
+          age: this.datos.age,
         };
-        window.location.href = "/login";
+        this.peticiones.url = "client/update/" + this.datos.dni;
       }
+      let response = await this.$store.getters.llamada_api(
+        this.peticiones.url,
+        "PUT",
+        post,
+        this.peticiones.headers
+      );
+      console.log(response.status);
     },
     async borrar() {
-      this.$cookies.set("user", "", "1h");
-      window.location.href = "/login";
+      var url = "";
+      if (this.tipo == "Deportista") {
+        url = "client/delete/02937847K";
+      } else if (this.tipo == "Entrenador") {
+        url = "personal-trainer/delete/02937847K";
+      }
+
+      let response = await this.$store.getters.llamada_api(
+        url,
+        "DELETE",
+        null,
+        this.peticiones.headers
+      );
+      if ((response.status = 200)) {
+        this.$cookies.set("user", "", "1h");
+        window.location.href = "/login";
+      }
     },
   },
   computed: {},
