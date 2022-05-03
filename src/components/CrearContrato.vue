@@ -16,10 +16,10 @@
     >
       <b-form>
         <div style="display: grid; grid-template-columns: 200px 350px">
-          <p>Date:</p>
+          <p>Día que empieza:</p>
           <b-form-group style="margin-block: 10px; width: 100%">
             <b-form-datepicker
-              v-model="date"
+              v-model="date_s"
               class="mb-2"
               locale="es"
               :min="min_d"
@@ -27,16 +27,17 @@
           </b-form-group>
         </div>
         <div style="display: grid; grid-template-columns: 200px 350px">
-          <p>Time:</p>
-          <b-form-group
+          <p>Día que termina:</p>
+          <b-form-group 
             style="margin-block: 10px; width: 100%"
-            invalid-feedback="Tienes que crear la sesión con más antelación"
-          >
-            <b-form-timepicker
-              v-model="time"
-              hide-header
-              :state="comprobar_hora()"
-            ></b-form-timepicker>
+            invalid-feedback="Tienes que crear la sesión con más antelación">
+            <b-form-datepicker
+              v-model="date_e"
+              class="mb-2"
+              locale="es"
+              :min="min_d"
+              :state="comprobarDia()"
+            ></b-form-datepicker>
           </b-form-group>
         </div>
         <div style="display: grid; grid-template-columns: 200px 350px">
@@ -63,6 +64,17 @@
             ></b-form-input>
           </b-form-group>
         </div>
+        <div style="display: grid; grid-template-columns: 200px 350px">
+          <p>DNI Cliente:</p>
+          <b-form-group style="margin-block: 10px; width: 100%">
+            <b-form-input
+              style="border-radius: 20px; border: 1px solid rgb(0 0 0 / 50%)"
+              v-model="dni_client"
+              type="text"
+              required
+            ></b-form-input>
+          </b-form-group>
+        </div>
         <b-button
           style="
             margin-top: 20px;
@@ -71,8 +83,8 @@
             width: 350px;
             justify-content: center;
           "
-          @click="crearSesion()"
-          >Crear Sesión</b-button
+          @click="crearContrato()"
+          >Crear Contrato</b-button
         >
       </b-form>
     </div>
@@ -80,7 +92,6 @@
 </template>
 
 <script>
-import store from '@/store';
 export default {
   data: function data() {
     const now = new Date();
@@ -89,11 +100,10 @@ export default {
     return {
       description: "",
       price: 0,
-      time: "",
-      date: "",
+      date_s: "",
+      date_e: "",
+      dni_client: "",
       min_d: minDate,
-      min_h: "",
-      hoy: now,
       peticiones: {
         headers: null,
         url: "",
@@ -102,7 +112,7 @@ export default {
     };
   },
   methods: {
-    async crearSesion() {
+    async crearContrato() {
       //falla el tema del time y el date
       this.peticiones.headers = {
         headers: {
@@ -110,12 +120,15 @@ export default {
         },
       };
       this.peticiones.post = {
-        date_time: this.$store.getters.unir_fecha(this.time, this.date),
+        start_date: this.$store.getters.unir_fecha("00:00:00", this.date_s),
+        end_date: this.$store.getters.unir_fecha("00:00:00", this.date_e),
         description: this.description,
         price: this.price,
-        dni: this.$cookies.get("user").dni
+        dni_trainer: this.$cookies.get("user").dni,
+        dni_client: this.dni_client,
+        accepted: false
       };
-      this.peticiones.url = "training-session/add"
+      this.peticiones.url = "contract/add"
       console.log(this.peticiones.post);
       let response = await this.$store.getters.llamada_api(
         this.peticiones.url,
@@ -125,22 +138,15 @@ export default {
       );
       console.log(response);
       if(response.status==201){
-        window.location.href = "/misSesiones";
+        window.location.href = "/misContratos";
       }
       //falta meter algún mensaje de error si ocurre otra cosa
     },
-    comprobar_hora() {
-      var fecha = this.date.split("-");
+    comprobarDia() {
 
-      if (
-        parseInt(fecha[2], 10) == this.hoy.getDate() &&
-        parseInt(fecha[1], 10) - 1 == this.hoy.getMonth() &&
-        parseInt(fecha[0], 10) == this.hoy.getFullYear()
-      ) {
-        var tiempo = this.time.split(":");
-        if (parseInt(tiempo[0], 10) <= this.hoy.getHours()) {
+      if (this.date_e!="" && this.date_s>this.date_e) {
           return false;
-        }
+        
       }
       return null;
     },

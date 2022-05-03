@@ -17,39 +17,94 @@ export default new Vuex.Store({
         return "";
       // var url = "http://localhost:3000/" + path;
       var url = "http://localhost:3000/" + path;
-      switch (method) {
-        case 'GET':
-          if (headers)
-            response = await axios.get(url, headers);
-          else
-            response = await axios.get(url);
-          break;
-        case 'POST':
-          if (headers)
-            response = await axios.post(url, post, headers);
-          else
-            response = await axios.post(url, post);
-          break;
-        case 'PUT':
-          if (headers)
-            response = await axios.put(url, post, headers);
-          else
-            response = await axios.put(url, post);
-          break;
-        case 'DELETE':
-          if (headers)
-            response = await axios.delete(url, headers);
-          else
-            response = await axios.delete(url);
-          break;
-        default:
-          break;
-      }
+        switch (method) {
+          case 'GET':
+            if (headers)
+              await axios.get(url, headers)
+              .then(function (r) {
+                response = r;
+              })
+              .catch(function(e){
+                response = e
+              });
+            else
+              await axios.get(url)
+              .then(function (r) {
+                response = r;
+              })
+              .catch(function(e){
+                response = e
+              });
+            break;
+          case 'POST':
+            if (headers)
+              await axios.post(url, post, headers)
+              .then(function (r) {
+                response = r;
+              })
+              .catch(function(e){
+                response = e
+              });
+            else
+              await axios.post(url, post)
+              .then(function (r) {
+                response = r;
+              })
+              .catch(function(e){
+                response = e
+              });
+            break;
+          case 'PUT':
+            if (headers)
+              await axios.put(url, post, headers)
+              .then(function (r) {
+                console.log(r);
+                console.log("p")
+                response = r;
+              })
+              .catch(function(e){
+                response = e
+              });
+            else
+              await axios.put(url, post)
+              .then(function (r) {
+                response = r;
+              })
+              .catch(function(e){
+                response = e
+              });
+            break;
+          case 'DELETE':
+            if (headers)
+              await axios.delete(url, headers)
+              .then(function (r) {
+                response = r;
+              })
+              .catch(function(e){
+                response = e
+              });
+            else
+              await axios.delete(url)
+              .then(function (r) {
+                response = r;
+              })
+              .catch(function(e){
+                response = e
+              });
+            break;
+          default:
+            break;
+        }
+      // console.log(response);
       return response;
     },
-    autorizacion: function () {
-      console.log("prueba");
-      return "patata";
+    unir_fecha: (state) => (tiempo, fecha) => {
+      return fecha + "T" + tiempo + ".000Z";
+    },
+    separar_fecha: (state) => (fecha_unido) => {
+      var fecha = fecha_unido.substring(0, 10);
+      var tiempo = fecha_unido.substring(11, 19);
+      return [fecha, tiempo];
     }
   },
   mutations: {

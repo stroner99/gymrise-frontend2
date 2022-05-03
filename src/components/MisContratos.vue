@@ -2,9 +2,6 @@
   <div>
     <div class="fondo_img"></div>
     <div class="fondo"></div>
-    <div v-if="mostrar.verDetalles">
-      <verdetalles @click="cerrarPopUp" :sesion_id="mostrar.sesion_id"></verdetalles>
-    </div>
     <div
       style="
         margin: 50px auto auto;
@@ -17,10 +14,10 @@
         flex-direction: column;
       "
     >
-      <div v-if="contratos == []">
-        <h2>No hay sesiones</h2>
+      <div v-if="contratos.length == 0">
+        <h2>No hay contratos</h2>
       </div>
-      <div v-for="contrato in contratos" :key=" contrato.id">
+      <div v-for="contrato in contratos" :key="contrato.id">
         <div
           style="
             padding: 4px;
@@ -33,37 +30,45 @@
           <div
             style="
               display: grid;
-              grid-template-columns: 100px minmax(45px, auto) 80px;
+              grid-template-columns: 20px minmax(50px, auto) minmax(45px, auto) 80px;
               border-bottom: black solid 1px;
             "
           >
             <p style="padding-right: 9px; border-right: 1px gray solid">
-              {{ contrato.description }}
+              #{{ contrato.id }}
             </p>
             <p style="padding-right: 9px; border-right: 1px gray solid">
-              {{ contrato.date }}
+              {{ contrato.dni_trainer }}
+            </p>
+            <p style="padding-right: 9px; border-right: 1px gray solid">
+              {{ contrato.date_e }} / {{ contrato.date_s }}
             </p>
             <p style="justify-content: left">{{ contrato.price }}€</p>
           </div>
           <div
             style="
               display: grid;
-              grid-template-columns: minmax(100px, auto) minmax(100px, auto);
+              grid-template-columns: minmax(100px, auto) minmax(100px, auto) minmax(100px, auto);
               margin-block: 6px;
             "
           >
-            <b-button
-              style="margin-inline: 30px; background-color: #a54646"
-              @click="verdetalles(contrato.id)"
-              ><b-icon icon="arrow-down-circle" color="#0000"></b-icon> &nbsp;
-              Ver detalles</b-button
+            <b-button variant="outline-danger" @click="borrarSesion(contrato.id)" v-if="tipo=='Entrenador' && contrato.accepted==false">Borrar Sesión</b-button>
+            <b-button variant="outline-danger" @click="aceptarSesion(contrato.id, false)" v-if="tipo=='Deportista' && contrato.accepted==false">Rechazar</b-button>
+            <b-button variant="outline-dark" v-b-modal="'modal-detalles-' + contrato.id"
+              >Ver Detalles</b-button
             >
-            <b-button
-              style="margin-inline: 30px; background-color: #a54646"
-              @click="baja(contrato.id)"
-              ><b-icon icon="arrow-down-circle" color="#0000"></b-icon> &nbsp;
-              Darse de Baja</b-button
+            <b-modal
+              :id="'modal-detalles-' + contrato.id"
+              :title="'Contrato #' + contrato.id"
+              ok-only
             >
+              <p>Entrenador: {{contrato.dni_trainer}}</p>
+              <p>Detalles: {{ contrato.description }}</p>
+              <p>Fecha inicio: {{ contrato.date_s }}</p>
+              <p>Fecha fin: {{ contrato.date_e }}</p>
+              <p>Precio: {{ contrato.price }}€</p>
+            </b-modal>
+            <b-button variant="outline-success" @click="aceptarSesion(contrato.id, true)" v-if="tipo=='Deportista' && contrato.accepted==false">Aceptar</b-button>
           </div>
         </div>
       </div>
@@ -72,15 +77,10 @@
 </template>
 
 <script>
-import verdetalles from "./PopuupVerDetalles.vue";
 export default {
   data: function data() {
     return {
       contratos: [],
-      mostrar: {
-        verDetalles: false,
-        sesion_id: "",
-      },
       peticiones: {
         headers: null,
         url: "",
@@ -98,9 +98,9 @@ export default {
       },
     };
     this.tipo = this.$cookies.get("tipo");
-    if(this.tipo=="Deportista"){
+    if (this.tipo == "Deportista") {
       this.peticiones.url = "contract/client/" + this.$cookies.get("user").dni;
-    }else if(this.tipo="Entrenador"){
+    } else if ((this.tipo = "Entrenador")) {
       this.peticiones.url = "contract/trainer/" + this.$cookies.get("user").dni;
     }
     let response = await this.$store.getters.llamada_api(
@@ -111,11 +111,22 @@ export default {
     );
     console.log(response);
     if (response.status == "200") {
-      this.contrato = response.data;
+      for (var elem of response.data) {
+        var contrato = elem;
+        var time_date_s = this.$store.getters.separar_fecha(
+          contrato.start_date
+        );
+        contrato.date_s = time_date_s[0];
+        contrato.time_s = time_date_s[1];
+        var time_date_e = this.$store.getters.separar_fecha(contrato.end_date);
+        contrato.date_e = time_date_e[0];
+        contrato.time_e = time_date_e[1];
+        this.contratos.push(contrato);
+      }
+      console.log(this.contratos);
     }
   },
   components: {
-    verdetalles,
   },
   methods: {
     baja(contrato_id) {
@@ -131,14 +142,28 @@ export default {
         window.location.href = "/contratos";
       }
     },
-    verdetalles(sesion_id) {
-      //falta crear detalles para contratos
-      this.mostrar.sesion_id = sesion_id;
-      this.mostrar.verDetalles = true;
+    aceptarSesion(contrato_id, aceptado) {
+      this.peticiones.url = "contract/update/" + contrato_id + '/' + aceptado;
+      let response = this.$store.getters.llamada_api(
+        this.peticiones.url,
+        "PUT",
+        this.peticiones.post,
+        this.peticiones.headers
+      );
     },
-    cerrarPopUp(){
-      this.mostrar.verDetalles = false;
-    }
+    borrarSesion(contrato_id) {
+      this.peticiones.url =
+        "contract/delete/" + contrato_id;
+      let response = this.$store.getters.llamada_api(
+        this.peticiones.url,
+        "DELETE",
+        this.peticiones.post,
+        this.peticiones.headers
+      );
+      this.contratos = this.contratos.filter(function(item){
+          return item.id !== sesion_id;
+        });
+    },
   },
   computed: {},
 };

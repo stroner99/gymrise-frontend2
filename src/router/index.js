@@ -7,7 +7,9 @@ import Sesiones from '../components/Sesiones.vue'
 import MisSesiones from '../components/MisSesiones.vue'
 import Monitores from '../components/Monitores'
 import CrearSesion from '../components/CrearSesion.vue'
-import Contratos from '../components/Contratos.vue'
+import MisContratos from '../components/MisContratos.vue'
+import CrearContratos from '../components/CrearContrato.vue'
+
 
 Vue.use(VueRouter)
 
@@ -52,9 +54,14 @@ const routes = [
     component: CrearSesion
   },
   {
-    path: '/contratos',
-    name: 'contratos',
-    component: Contratos
+    path: '/crearContrato',
+    name: 'crearContrato',
+    component: CrearContratos
+  },
+  {
+    path: '/misContratos',
+    name: 'misContratos',
+    component: MisContratos
   },
   
 

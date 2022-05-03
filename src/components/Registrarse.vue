@@ -1,7 +1,5 @@
 <template>
   <div>
-    <div class="fondo_img"></div>
-    <div class="fondo"></div>
     <div
       style="
         margin: 50px auto auto;
@@ -209,11 +207,11 @@ export default {
         description: "",
         height: "",
         weight: "",
-        sex: "Hombre",
+        sex: "",
         age: "",
         tipo: "Entrenador",
       },
-      sex: ["Hombre", "Mujer", "Otro"],
+      sex: [],
       tipo: ["Entrenador", "Deportista"],
       peticiones: {
         headers: null,
@@ -221,6 +219,16 @@ export default {
         post: null,
       },
     };
+  },
+  async created(){
+    this.peticiones.url = "sex";
+    let response = await this.$store.getters.llamada_api(
+      this.peticiones.url,
+      "GET",
+      this.peticiones.post,
+      this.peticiones.headers
+    );
+    this.sex=response.data;
   },
   methods: {
     async onSubmit(event) {
@@ -244,14 +252,6 @@ export default {
         this.peticiones.url = "personal-trainer/add";
 
       } else if (this.datos.tipo == "Deportista") {
-        var sexo = "";
-        if (this.datos.sex == "Hombre") {
-          sexo = "male";
-        } else if (this.datos.sex == "Mujer") {
-          sexo = "female";
-        } else {
-          sexo = "other";
-        }
         this.peticiones.post = {
           name: this.datos.name,
           surname: this.datos.surname,
@@ -261,7 +261,7 @@ export default {
           description: this.datos.description,
           height: this.datos.height,
           weight: this.datos.weight,
-          sex: sexo,
+          sex: this.datos.sexo,
           age: this.datos.age,
         };
         this.peticiones.url = "client/add";

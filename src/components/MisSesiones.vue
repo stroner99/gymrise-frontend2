@@ -1,10 +1,5 @@
 <template>
   <div>
-    <div class="fondo_img"></div>
-    <div class="fondo"></div>
-    <div v-if="mostrar.verDetalles">
-      <verdetalles @click="cerrarPopUp" :sesion_id="mostrar.sesion_id"></verdetalles>
-    </div>
     <div
       style="
         margin: 50px auto auto;
@@ -17,7 +12,7 @@
         flex-direction: column;
       "
     >
-      <div v-if="sesiones == []">
+      <div v-if="sesiones.length==0">
         <h2>No tienes sesiones</h2>
       </div>
       <div v-if="this.$cookies.get('tipo') == 'Entrenador'">
@@ -40,15 +35,15 @@
           <div
             style="
               display: grid;
-              grid-template-columns: 100px minmax(45px, auto) 80px;
+              grid-template-columns: minmax(200px,auto) minmax(45px, auto) 80px;
               border-bottom: black solid 1px;
             "
           >
             <p style="padding-right: 9px; border-right: 1px gray solid">
-              {{ sesion.description }}
+              {{ sesion.title }}
             </p>
             <p style="padding-right: 9px; border-right: 1px gray solid">
-              {{ sesion.date }}
+              {{ sesion.date }} / {{sesion.time}}
             </p>
             <p style="justify-content: left">{{ sesion.price }}€</p>
           </div>
@@ -59,18 +54,28 @@
               margin-block: 6px;
             "
           >
-            <b-button
-              style="margin-inline: 30px; background-color: #a54646"
-              @click="verdetalles(sesion.id)"
-              ><b-icon icon="arrow-down-circle" color="#0000"></b-icon> &nbsp;
-              Ver detalles</b-button
+            <b-button 
+            style="margin-inline: 30px"
+            variant="outline-dark"
+            v-b-modal="'modal-detalles-' + sesion.id"
+              >Ver Detalles</b-button
             >
+            <b-modal
+              :id="'modal-detalles-' + sesion.id"
+              :title="sesion.title"
+              ok-only
+            >
+              <p>Entrenador: {{sesion.name}} {{sesion.surname}}</p>
+              <p>Detalles: {{ sesion.description }}</p>
+              <p>Fecha: {{ sesion.date }}</p>
+              <p>Hora {{ sesion.time }}</p>
+              <p>Precio: {{ sesion.price }}€</p>
+            </b-modal>
             <b-button
-              style="margin-inline: 30px; background-color: #a54646"
+              style="margin-inline: 30px"
+              variant="outline-danger"
               @click="anularSesion(sesion.id)"
-              ><b-icon icon="arrow-down-circle" color="#0000"></b-icon> &nbsp;
-              Anular Sesión</b-button
-            >
+              >Anular Sesión</b-button>
           </div>
         </div>
       </div>
@@ -79,24 +84,10 @@
 </template>
 
 <script>
-import verdetalles from "./PopuupVerDetalles.vue";
 export default {
   data: function data() {
     return {
-      sesiones: [
-        {
-          id: 0,
-          date: "2022-03-15T00:00:00.000Z",
-          time: "1970-01-01T15:20:09.000Z",
-          dni: "string",
-          description: "descrip",
-          price: 10,
-        },
-      ],
-      mostrar: {
-        verDetalles: false,
-        sesion_id: "",
-      },
+      sesiones: [ ],
       peticiones: {
         headers: null,
         url: "",
@@ -124,37 +115,40 @@ export default {
       this.peticiones.post,
       this.peticiones.headers
     );
-    console.log(response);
     if (response.status == "200") {
-      this.sesiones = response.data;
+      for(var elem of response.data){
+        var sesion = elem;
+        var time_date = this.$store.getters.separar_fecha(sesion.date_time);
+        sesion.date = time_date[0];
+        sesion.time = time_date[1];
+        this.sesiones.push(sesion);
+      }
     }
   },
   components: {
-    verdetalles,
   },
   methods: {
     anularSesion(sesion_id) {
-      this.peticiones.url = "training-session/delete/" + sesion_id;
+          
+      if (this.$cookies.get("tipo") == "Entrenador") {
+        this.peticiones.url = "training-session/delete/" + sesion_id;
+      }
+      else if(this.$cookies.get("tipo") == "Deportista"){
+        this.peticiones.url = "training-session/delete/" + sesion_id + "/client/" + this.$cookies.get("user").dni;
+      }
       let response = this.$store.getters.llamada_api(
         this.peticiones.url,
         "DELETE",
         this.peticiones.post,
         this.peticiones.headers
       );
-      if (response.status == 200) {
-        window.location.href = "/misSesiones";
-      }
-    },
-    verdetalles(sesion_id) {
-      this.mostrar.sesion_id = sesion_id;
-      this.mostrar.verDetalles = true;
+      this.sesiones = this.sesiones.filter(function(item){
+          return item.id !== sesion_id;
+        });
     },
     crearSesion() {
       window.location.href = "/crearsesion";
     },
-    cerrarPopUp(){
-      this.mostrar.verDetalles = false;
-    }
   },
   computed: {},
 };

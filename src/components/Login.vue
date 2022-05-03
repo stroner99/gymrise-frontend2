@@ -93,12 +93,12 @@ export default  {
         email: this.user,
         password: this.password,
         role: this.selected.toUpperCase(),
-      };      
+      };
       let response = await this.$store.getters.llamada_api("auth/login", "POST", post);
       if(response.status=='201'){
-          this.$cookies.set("user", response.data, "1h");
-          this.$cookies.set("tipo", this.selected, "1h");
-          this.$cookies.set("token", response.data.accessToken, "1h");
+          this.$cookies.set("user", response.data, "12h");
+          this.$cookies.set("tipo", this.selected, "12h");
+          this.$cookies.set("token", response.data.accessToken, "12h");
           window.location.href = "/datos";
 
       } else {

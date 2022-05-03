@@ -103,6 +103,14 @@
             ></b-form-input>
           </b-form-group>
         </div>
+        <div v-if="tipo == 'Entrenador'">
+          <b-form-group label="Elige tus habilidades">
+            <b-form-checkbox-group
+              v-model="skills_selected"
+              :options="skills"
+            ></b-form-checkbox-group>
+          </b-form-group>
+        </div>
         <div v-if="tipo == 'Deportista'">
           <div
             style="
@@ -164,28 +172,15 @@
             </b-form-group>
           </div>
         </div>
-        <div style="display: flex">
+        <div style="display: grid; grid-template-columns: auto auto; gap: 30px;">
           <b-button
             @click="borrar"
-            style="
-              margin-top: 20px;
-              margin-left: 10px;
-              display: flex;
-              width: 180px;
-              justify-content: center;
-              background-color: red;
-            "
+            variant="danger"
             >Borrar Cuenta</b-button
           >
           <b-button
             type="submit"
-            style="
-              margin-top: 20px;
-              margin-left: 10px;
-              display: flex;
-              width: 350px;
-              justify-content: center;
-            "
+            variant="outline-dark"
             >Actualizar Datos</b-button
           >
         </div>
@@ -218,7 +213,11 @@ export default {
         headers: null,
         url: "",
         post: null,
-      }
+      },
+      skills: [],
+      skills_first: [],
+      skills_selected: []
+      
     };
   },
   async created() {
@@ -229,8 +228,33 @@ export default {
       },
     };
     if (this.tipo == "Entrenador") {
+      this.peticiones.url = "personal-trainer/skills/all";
+      let response_s = await this.$store.getters.llamada_api(
+        this.peticiones.url,
+        "GET",
+        this.peticiones.post,
+        this.peticiones.headers
+      );
+      this.peticiones.url = "personal-trainer/skills/" + this.$cookies.get("user").dni;
+      this.skills = response_s.data;
+      let response_sf = await this.$store.getters.llamada_api(
+        this.peticiones.url,
+        "GET",
+        this.peticiones.post,
+        this.peticiones.headers
+      );
+      this.skills_first = response_sf.data;
+      this.skills_selected = this.skills_first;
       this.peticiones.url = "personal-trainer/" + this.$cookies.get("user").dni;
     } else if (this.tipo == "Deportista") {
+      this.peticiones.url = "sex";
+      let response_s = await this.$store.getters.llamada_api(
+        this.peticiones.url,
+        "GET",
+        this.peticiones.post,
+        this.peticiones.headers
+      );
+      this.sex=response_s.data;
       this.peticiones.url = "client/" + this.$cookies.get("user").dni;
     }
 
@@ -249,21 +273,36 @@ export default {
       description: response.data.description,
       height: response.data.height,
       weight: response.data.weight,
-      sex: "Hombre",
+      sex: response.data.sex,
       age: response.data.age,
     };
-    if (response.data.sex == "male") {
-      this.datos.sex = "Hombre";
-    } else if (response.data.sex == "female") {
-      this.datos.sex = "Mujer";
-    } else {
-      this.datos.sex = "Otro";
-    }
   },
   methods: {
     async onSubmit(event) {
       event.preventDefault();
       if (this.tipo == "Entrenador") {
+        for(var elem of this.skills){
+          if(this.skills_selected.includes(elem) && !this.skills_first.includes(elem)){
+            this.peticiones.url = "personal-trainer/add/" + this.$cookies.get("user").dni + "/skill/" + elem;
+            this.peticiones.post = {};
+            let response = await this.$store.getters.llamada_api(
+              this.peticiones.url,
+              "POST",
+              this.peticiones.post,
+              this.peticiones.headers
+            );
+          }
+          else if(!this.skills_selected.includes(elem) && this.skills_first.includes(elem)){
+            this.peticiones.url = "personal-trainer/delete/" + this.$cookies.get("user").dni + "/skill/" + elem;
+            this.peticiones.post = {};
+            let response = await this.$store.getters.llamada_api(
+              this.peticiones.url,
+              "DELETE",
+              this.peticiones.post,
+              this.peticiones.headers
+            );
+          }
+        }
         this.peticiones.post = {
           name: this.datos.name,
           surname: this.datos.surname,
@@ -285,10 +324,10 @@ export default {
       let response = await this.$store.getters.llamada_api(
         this.peticiones.url,
         "PUT",
-        post,
+        this.peticiones.post,
         this.peticiones.headers
       );
-      console.log(response.status);
+
     },
     async borrar() {
       var url = "";
