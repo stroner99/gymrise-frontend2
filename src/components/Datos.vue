@@ -81,6 +81,7 @@
               type="email"
               placeholder="Email"
               required
+              disabled
             ></b-form-input>
           </b-form-group>
         </div>
@@ -114,7 +115,7 @@
               grid-template-columns: 100px minmax(65px, 120px) minmax(50px,110px) minmax(65px, 120px);
             "
           >
-            <p>Altura:</p>
+            <p>Altura(cm):</p>
             <b-form-group style="margin-block: 10px; width: 100%">
               <b-form-input
                 style="border-radius: 20px; border: 1px solid rgb(0 0 0 / 50%)"
@@ -125,7 +126,7 @@
                 min="1"
               ></b-form-input>
             </b-form-group>
-            <p>Peso:</p>
+            <p>Peso(Kg):</p>
             <b-form-group style="margin-block: 10px; width: 100%">
               <b-form-input
                 style="border-radius: 20px; border: 1px solid rgb(0 0 0 / 50%)"
@@ -184,6 +185,7 @@
         </div>
       </b-form>
     </div>
+    <b-modal v-model="modalConfirmacion" ok-only><h4>Se han realizado los cambios</h4></b-modal>
   </div>
 </template>
 
@@ -214,7 +216,8 @@ export default {
       },
       skills: [],
       skills_first: [],
-      skills_selected: []
+      skills_selected: [],
+      modalConfirmacion: false,
       
     };
   },
@@ -325,6 +328,9 @@ export default {
         this.peticiones.post,
         this.peticiones.headers
       );
+      if(response.status==200){
+        this.modalConfirmacion = true;
+      }
 
     },
     async borrar() {
