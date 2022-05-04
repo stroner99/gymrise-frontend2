@@ -1,7 +1,5 @@
 <template>
   <div>
-    <div class="fondo_img"></div>
-    <div class="fondo"></div>
     <div
       style="
         margin: 50px auto auto;
@@ -30,44 +28,42 @@
           <div
             style="
               display: grid;
-              grid-template-columns: 20px minmax(50px, auto) minmax(45px, auto) 80px;
+              grid-template-columns: minmax(200px,auto) minmax(45px, auto) 80px;
               border-bottom: black solid 1px;
             "
           >
             <p style="padding-right: 9px; border-right: 1px gray solid">
-              #{{ contrato.id }}
+              {{ contrato.title }}
             </p>
             <p style="padding-right: 9px; border-right: 1px gray solid">
-              {{ contrato.dni_trainer }}
-            </p>
-            <p style="padding-right: 9px; border-right: 1px gray solid">
-              {{ contrato.date_e }} / {{ contrato.date_s }}
+              {{ contrato.date_s }} / {{ contrato.date_e }}
             </p>
             <p style="justify-content: left">{{ contrato.price }}€</p>
           </div>
           <div
             style="
               display: grid;
-              grid-template-columns: minmax(100px, auto) minmax(100px, auto) minmax(100px, auto);
+              grid-template-columns: minmax(100px, auto) minmax(100px, auto);
               margin-block: 6px;
             "
           >
-            <b-button variant="outline-danger" @click="borrarSesion(contrato.id)" v-if="tipo=='Entrenador' && contrato.accepted==false">Borrar Sesión</b-button>
-            <b-button variant="outline-danger" @click="aceptarSesion(contrato.id, false)" v-if="tipo=='Deportista' && contrato.accepted==false">Rechazar</b-button>
+            <!-- <b-button variant="outline-danger" @click="aceptarSesion(contrato.id, false)" v-if="tipo=='Deportista' && contrato.accepted==false">Rechazar</b-button> -->
             <b-button variant="outline-dark" v-b-modal="'modal-detalles-' + contrato.id"
               >Ver Detalles</b-button
             >
             <b-modal
               :id="'modal-detalles-' + contrato.id"
-              :title="'Contrato #' + contrato.id"
+              :title="contrato.title"
               ok-only
             >
-              <p>Entrenador: {{contrato.dni_trainer}}</p>
+              <p v-if="tipo=='Entrenador'">Deportista: {{contrato.name_client}} {{contrato.surname_client}}</p>
+              <p v-if="tipo=='Deportista'">Entrenador: {{contrato.name_trainer}} {{contrato.surname_trainer}}</p>
               <p>Detalles: {{ contrato.description }}</p>
               <p>Fecha inicio: {{ contrato.date_s }}</p>
               <p>Fecha fin: {{ contrato.date_e }}</p>
               <p>Precio: {{ contrato.price }}€</p>
             </b-modal>
+            <b-button variant="outline-danger" @click="borrarSesion(contrato.id)" v-if="tipo=='Entrenador' && contrato.accepted==false">Borrar Sesión</b-button>
             <b-button variant="outline-success" @click="aceptarSesion(contrato.id, true)" v-if="tipo=='Deportista' && contrato.accepted==false">Aceptar</b-button>
           </div>
         </div>

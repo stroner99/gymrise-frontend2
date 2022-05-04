@@ -1,7 +1,5 @@
 <template>
   <div>
-    <div class="fondo_img"></div>
-    <div class="fondo"></div>
     <div
       style="
         margin: 50px auto auto;
@@ -103,13 +101,11 @@
             ></b-form-input>
           </b-form-group>
         </div>
-        <div v-if="tipo == 'Entrenador'">
-          <b-form-group label="Elige tus habilidades">
-            <b-form-checkbox-group
-              v-model="skills_selected"
-              :options="skills"
-            ></b-form-checkbox-group>
-          </b-form-group>
+        <div style="display: grid; grid-template-columns: auto auto;" v-if="tipo == 'Entrenador'">
+          <div v-for="skill in skills" :key="skill">
+            <input type="checkbox" :id="skill" :value="skill" v-model="skills_selected">
+            <label style="font-weight: bold;" class="input-helper input-helper--checkbox" :for="skill">{{skill}}</label>
+          </div>
         </div>
         <div v-if="tipo == 'Deportista'">
           <div
@@ -375,4 +371,41 @@ p {
   background-color: rgba(0, 0, 0, 0.2);
   z-index: -9;
 }
+.fondo_input {
+  background-color: rgba(255, 255, 255, 0.4);
+  z-index: -1;
+}
+ .input-helper { 
+    position: relative; 
+    display: inline-block; 
+    margin-bottom: 5px; 
+} 
+ 
+.input-helper:before { 
+    content: ''; 
+    display: block; 
+    position: absolute; 
+} 
+ 
+.input-helper--checkbox { 
+    padding-left: 20px; 
+} 
+ 
+.input-helper--checkbox:before { 
+    top: 6px;
+    left: 0;
+    width: 15px;
+    height: 15px;
+    border: 1px solid #52a259;
+    background-color: white;
+    border-radius: 5px;
+} 
+ 
+input[type=checkbox] { 
+    display: none; 
+} 
+ 
+input[type=checkbox]:checked + label:before { 
+    background: #52a259; 
+} 
 </style>

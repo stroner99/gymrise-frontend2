@@ -15,13 +15,6 @@
       <div v-if="sesiones.length==0">
         <h2>No tienes sesiones</h2>
       </div>
-      <div v-if="this.$cookies.get('tipo') == 'Entrenador'">
-        <b-button
-          style="margin-inline: 30px; background-color: #a54646"
-          @click="crearSesion()"
-          >Crear Sesión Nueva</b-button
-        >
-      </div>
       <div v-for="sesion in sesiones" :key="sesion.id">
         <div
           style="

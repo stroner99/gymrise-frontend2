@@ -9,11 +9,17 @@ import Monitores from '../components/Monitores'
 import CrearSesion from '../components/CrearSesion.vue'
 import MisContratos from '../components/MisContratos.vue'
 import CrearContratos from '../components/CrearContrato.vue'
+import Prueba from '../components/Prueba.vue'
 
 
 Vue.use(VueRouter)
 
 const routes = [
+  {
+    path: '/prueba',
+    name: 'prueba',
+    component: Prueba
+  },
   {
     path: '/',
     redirect: '/login'

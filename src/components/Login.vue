@@ -1,7 +1,5 @@
 <template>
   <div>
-    <div class="fondo_img"></div>
-    <div class="fondo"></div>
     <div
       style="
         width: 100%;
@@ -150,4 +148,35 @@ p {
   background-color: rgba(255, 255, 255, 0.4);
   z-index: -1;
 }
+ .input-helper { 
+    position: relative; 
+    display: inline-block; 
+    margin-bottom: 5px; 
+} 
+ 
+.input-helper:before { 
+    content: ''; 
+    display: block; 
+    position: absolute; 
+} 
+ 
+.input-helper--checkbox { 
+    padding-left: 20px; 
+} 
+ 
+.input-helper--checkbox:before { 
+    top: 2px; 
+    left: 0; 
+    width: 13px; 
+    height: 13px; 
+    border: 1px solid #52a259; 
+} 
+ 
+input[type=checkbox] { 
+    display: none; 
+} 
+ 
+input[type=checkbox]:checked + label:before { 
+    background: #52a259; 
+} 
 </style>

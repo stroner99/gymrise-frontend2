@@ -1,7 +1,5 @@
 <template>
   <div>
-    <div class="fondo_img"></div>
-    <div class="fondo"></div>
     <div
       style="
         margin: 50px auto auto;
@@ -15,6 +13,18 @@
       "
     >
       <b-form>
+        <div style="display: grid; grid-template-columns: 200px 350px">
+          <p>Título:</p>
+          <b-form-group style="margin-block: 10px; width: 100%">
+            <b-form-input
+              style="border-radius: 20px; border: 1px solid rgb(0 0 0 / 50%)"
+              v-model="title"
+              type="text"
+              placeholder="Título"
+              required
+            ></b-form-input>
+          </b-form-group>
+        </div>
         <div style="display: grid; grid-template-columns: 200px 350px">
           <p>Día que empieza:</p>
           <b-form-group style="margin-block: 10px; width: 100%">
@@ -98,6 +108,7 @@ export default {
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const minDate = new Date(today);
     return {
+      title: "",
       description: "",
       price: 0,
       date_s: "",
@@ -122,6 +133,7 @@ export default {
       this.peticiones.post = {
         start_date: this.$store.getters.unir_fecha("00:00:00", this.date_s),
         end_date: this.$store.getters.unir_fecha("00:00:00", this.date_e),
+        title: this.title,
         description: this.description,
         price: this.price,
         dni_trainer: this.$cookies.get("user").dni,

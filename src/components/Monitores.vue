@@ -33,7 +33,7 @@
           <div
             style="
               display: grid;
-              grid-template-columns: minmax(100px, auto) minmax(100px, auto);
+              grid-template-columns: minmax(100px, auto) minmax(100px, auto) minmax(100px, auto);
               margin-block: 6px;
               gap: 20px;
             "
@@ -45,9 +45,14 @@
               :id="'modal-entrenador-' + trainer.dni"
               :title="trainer.name + ' ' + trainer.surname"
               ok-only
+              @show="getskills(trainer.dni)"
             >
               <p>Detalles: {{ trainer.description }}</p>
               <p>Email: {{ trainer.email }}</p>
+              <div v-if="skills.length!=0">
+                <p>Skills: </p>
+                <p v-for="skill in skills" :key="skill" style="margin-left: 10px !important;">-{{skill}}</p>
+              </div>
             </b-modal>
             <b-button variant="outline-dark" v-b-modal="'modal-sesion-' + trainer.dni"
               >Ver Sesiones</b-button
@@ -119,6 +124,34 @@
                 </div>
               </div>
             </b-modal>
+              <b-button variant="outline-dark" v-b-modal="'chat-entrenador-' + trainer.dni"
+              >Chat</b-button
+            >
+            <b-modal
+              :id="'chat-entrenador-' + trainer.dni"
+              :title="trainer.name + ' ' + trainer.surname"
+              ok-only
+              @show="mostrarChat()"
+            >
+                  <div>
+                      <div id="status"></div>
+                      <div id="chat">
+                          <br>
+                          <div class="card">
+                              <div id="messages" class="card-block">
+                                  <ul>
+                                      <li v-for="message of chat.messages" :key="message.id">{{ message.name }}: {{ message.text }}</li>
+                                  </ul>
+                              </div>
+                          </div>
+                          <br>
+                          <div style="display: flex;">
+                          <input class="form-control" v-model="chat.text" placeholder="Escribe un mensaje...">
+                          <b-button style="padding-inline:25px; margin-left: 10px" variant="dark" @click.prevent="sendMessage(trainer.dni)">Enviar</b-button>
+                          </div>
+                      </div>
+                  </div>
+            </b-modal>
           </div>
         </div>
       </div>
@@ -126,17 +159,27 @@
   </div>
 </template>
 
+<script src="/socket.io/socket.io.js"></script>
 <script>
+import { io } from 'socket.io-client';
 export default {
   data: function data() {
     return {
       trainers: [],
       sesiones: [],
+      skills: [],
       peticiones: {
         headers: null,
         url: "",
         post: null,
       },
+      chat: {
+        name: '',
+        text: '',
+        messages: [],
+        socket_server: null,
+        socket_client: null,
+      }
     };
   },
   async created() {
@@ -201,6 +244,16 @@ export default {
         window.location.href = "/login";
       }
     },
+    async getskills(trainer_dni){
+      this.peticiones.url = "personal-trainer/skills/" + trainer_dni;
+      let response = await this.$store.getters.llamada_api(
+        this.peticiones.url,
+        "GET",
+        this.peticiones.post,
+        this.peticiones.headers
+      );
+      this.skills = response.data;
+    },
     async sesion(trainer_dni) {
       this.sesiones = [];
       this.peticiones.url =
@@ -248,6 +301,47 @@ export default {
         });
       }
     },
+    
+    mostrarChat(){
+      
+      this.chat.socket_server = io('http://localhost:3000/chat-server', 
+      {
+        extraHeaders: {
+              Authorization: "Bearer " + this.$cookies.get("token")
+            }
+      }
+      );
+      this.chat.socket_client = io('http://localhost:3000/chat-client', 
+      {
+        extraHeaders: {
+              Authorization: "Bearer " + this.$cookies.get("token")
+            }
+      }
+      );
+      this.chat.socket_server.on('msgToClient', (message) => {
+        this.receivedMessage(message)
+      })
+    },
+     sendMessage(trainer_dni) {
+      if(this.validateInput()) {
+        const message = {
+        dni_trainer: trainer_dni,
+        dni_client: this.$cookies.get("user").dni,
+        text: this.chat.text
+      }
+      console.log(trainer_dni);
+      console.log(message);
+      this.chat.socket_client.emit('msgToServer', message)
+      this.chat.text = ''
+      }
+    },
+    receivedMessage(message) {
+      console.log(message);
+      this.chat.messages.push(message)
+    },
+    validateInput() {
+      return this.chat.text.length > 0
+    }
   },
   computed: {},
 };
@@ -257,22 +351,8 @@ export default {
 p {
   margin-right: 10px;
 }
-.fondo_img {
-  position: fixed;
-  height: 100%;
-  width: 100%;
-  background-image: url("../assets/fondo_gym.jpg");
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-  opacity: 0.2;
-  z-index: -10;
-}
-.fondo {
-  position: fixed;
-  height: 100%;
-  width: 100%;
-  background-color: rgba(0, 0, 0, 0.2);
-  z-index: -9;
+#messages{
+ height:300px;
+ overflow-y: scroll;
 }
 </style>
