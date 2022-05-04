@@ -28,26 +28,40 @@
           <div
             style="
               display: grid;
-              grid-template-columns: minmax(200px,auto) minmax(45px, auto) 80px;
+              grid-template-columns: 100px minmax(150px,auto) minmax(45px, auto) 50px;
               border-bottom: black solid 1px;
+              gap: 5px
             "
           >
-            <p style="padding-right: 9px; border-right: 1px gray solid">
+          <div style="display: flex; flex-direction: column; justify-content: center;padding-inline: 9px; border-right: 1px gray solid">
+            <b-badge v-if="contrato.accepted==null" style="color: black; background-color: yellow; border-radius: 10px;">Pendiente</b-badge>
+            <b-badge v-else-if="contrato.accepted==false" style="color: #f8f9fa; background-color: red; border-radius: 10px;">Rechazado</b-badge>
+            <b-badge v-else-if="contrato.accepted==true" style="color: #f8f9fa; background-color: #28a745; border-radius: 10px;">Confirmado</b-badge>
+          </div>
+          <div style="display: flex; flex-direction: column; justify-content: center;padding-right: 9px; border-right: 1px gray solid">
+            <p>
               {{ contrato.title }}
             </p>
-            <p style="padding-right: 9px; border-right: 1px gray solid">
+          </div>
+          <div style="display: flex; flex-direction: column; justify-content: center;padding-right: 9px; border-right: 1px gray solid">
+            <p>
               {{ contrato.date_s }} / {{ contrato.date_e }}
             </p>
+          </div>
+          <div style="display: flex; flex-direction: column; justify-content: center;">
             <p style="justify-content: left">{{ contrato.price }}€</p>
+          </div>
           </div>
           <div
             style="
               display: grid;
-              grid-template-columns: minmax(100px, auto) minmax(100px, auto);
+              grid-template-columns:  minmax(100px, auto) minmax(100px, auto) minmax(100px, auto);
               margin-block: 6px;
             "
           >
-            <!-- <b-button variant="outline-danger" @click="aceptarSesion(contrato.id, false)" v-if="tipo=='Deportista' && contrato.accepted==false">Rechazar</b-button> -->
+            <b-button variant="outline-danger" @click="aceptarSesion(contrato, false)" v-if="tipo=='Deportista' && contrato.accepted==null">Rechazar</b-button>
+            <b-button variant="outline-danger" @click="borrarSesion(contrato.id)" v-else-if="tipo=='Entrenador' && contrato.accepted==null">Borrar Sesión</b-button>
+            <div v-else><p> </p></div>
             <b-button variant="outline-dark" v-b-modal="'modal-detalles-' + contrato.id"
               >Ver Detalles</b-button
             >
@@ -63,8 +77,7 @@
               <p>Fecha fin: {{ contrato.date_e }}</p>
               <p>Precio: {{ contrato.price }}€</p>
             </b-modal>
-            <b-button variant="outline-danger" @click="borrarSesion(contrato.id)" v-if="tipo=='Entrenador' && contrato.accepted==false">Borrar Sesión</b-button>
-            <b-button variant="outline-success" @click="aceptarSesion(contrato.id, true)" v-if="tipo=='Deportista' && contrato.accepted==false">Aceptar</b-button>
+            <b-button variant="outline-success" @click="aceptarSesion(contrato, true)" v-if="tipo=='Deportista' && contrato.accepted==null">Aceptar</b-button>
           </div>
         </div>
       </div>
@@ -138,14 +151,15 @@ export default {
         window.location.href = "/contratos";
       }
     },
-    aceptarSesion(contrato_id, aceptado) {
-      this.peticiones.url = "contract/update/" + contrato_id + '/' + aceptado;
+    aceptarSesion(contrato, aceptado) {
+      this.peticiones.url = "contract/update/" + contrato.id + '/' + aceptado;
       let response = this.$store.getters.llamada_api(
         this.peticiones.url,
         "PUT",
         this.peticiones.post,
         this.peticiones.headers
       );
+      contrato.accepted = aceptado;
     },
     borrarSesion(contrato_id) {
       this.peticiones.url =

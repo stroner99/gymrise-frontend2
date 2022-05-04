@@ -86,6 +86,7 @@ module.exports = {
         this.peticiones.headers
       );
        if (response.status == 200) {
+         this.notificaciones = [];
         for (var elem of response.data) {
           var notificacion = elem;
           var time_date = this.$store.getters.separar_fecha(notificacion.date_time);

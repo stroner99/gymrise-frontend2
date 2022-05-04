@@ -123,7 +123,7 @@
               grid-template-columns: 200px 120px 110px 120px;
             "
           >
-            <p>Altura:</p>
+            <p>Altura(cm):</p>
             <b-form-group style="margin-block: 10px; width: 100%">
               <b-form-input
                 style="border-radius: 20px; border: 1px solid rgb(0 0 0 / 50%)"
@@ -133,7 +133,7 @@
                 required
               ></b-form-input>
             </b-form-group>
-            <p>Peso:</p>
+            <p>Peso(Kg):</p>
             <b-form-group style="margin-block: 10px; width: 100%">
               <b-form-input
                 style="border-radius: 20px; border: 1px solid rgb(0 0 0 / 50%)"

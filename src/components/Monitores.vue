@@ -179,7 +179,7 @@ export default {
         messages: [],
         socket_server: null,
         socket_client: null,
-      }
+      },
     };
   },
   async created() {
@@ -199,51 +199,6 @@ export default {
     this.trainers = response.data;
   },
   methods: {
-    async onSubmit(event) {
-      event.preventDefault();
-      if (this.tipo == "Entrenador") {
-        post = {
-          name: this.name,
-          surname: this.surname,
-          dni: this.dni,
-          password: this.password,
-          email: this.email,
-          description: this.description,
-        };
-        //prueba de axios
-        url = "http://localhost:3000/client/update/" + this.dni;
-        this.axios.post(url, post).then((result) => {
-          if (result.data == "200") {
-            window.location.href = "/datos";
-          } else {
-            console.log(result.data);
-          }
-        });
-        window.location.href = "/login";
-      } else if (this.tipo == "Deportista") {
-        post = {
-          name: this.name,
-          surname: this.surname,
-          dni: this.dni,
-          password: this.password,
-          email: this.email,
-          description: this.description,
-          height: this.height,
-          weight: this.weight,
-          sex: this.sex,
-          age: this.age,
-        };
-        url = "http://localhost:3000/personal-trainer/update/" + this.dni;
-        this.axios.post(url, post).then((result) => {
-          if (result.data == "200") {
-            window.location.href = "/datos";
-          } else {
-            console.log(result.data);
-          }
-        });
-        window.location.href = "/login";
-      }
-    },
     async getskills(trainer_dni){
       this.peticiones.url = "personal-trainer/skills/" + trainer_dni;
       let response = await this.$store.getters.llamada_api(
@@ -278,30 +233,6 @@ export default {
       }
       console.log(response);
     },
-    async borrar() {
-      if (this.tipo == "Entrenador") {
-        url = "http://localhost:3000/client/delete/" + this.dni;
-        this.axios.delete(url).then((result) => {
-          if (result.data == "200") {
-            this.$cookies.set("user", "", "1h");
-            window.location.href = "/login";
-          } else {
-            console.log(result.data);
-          }
-        });
-      } else if (this.tipo == "Deportista") {
-        url = "http://localhost:3000/personal-trainer/delete/" + this.dni;
-        this.axios.delete(url).then((result) => {
-          if (result.data == "200") {
-            this.$cookies.set("user", "", "1h");
-            window.location.href = "/login";
-          } else {
-            console.log(result.data);
-          }
-        });
-      }
-    },
-    
     mostrarChat(){
       
       this.chat.socket_server = io('http://localhost:3000/chat-server', 
@@ -318,11 +249,15 @@ export default {
             }
       }
       );
-      this.chat.socket_server.on('msgToClient', (message) => {
+      this.chat.socket_client.on('chat-client', (message) => {
         this.receivedMessage(message)
       })
     },
      sendMessage(trainer_dni) {
+      const now = new Date();
+      var fecha = now.getFullYear() + "-" + (now.getMonth()+1) + "-" + now.getDate();
+      var hora = now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds();
+      console.log(this.$store.getters.unir_fecha(hora, fecha));
       if(this.validateInput()) {
         const message = {
         dni_trainer: trainer_dni,
@@ -331,7 +266,7 @@ export default {
       }
       console.log(trainer_dni);
       console.log(message);
-      this.chat.socket_client.emit('msgToServer', message)
+      this.chat.socket_server.emit('chat-server', message)
       this.chat.text = ''
       }
     },

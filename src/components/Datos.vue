@@ -312,7 +312,7 @@ export default {
           description: this.datos.description,
           height: this.datos.height,
           weight: this.datos.weight,
-          sex: "male",
+          sex: this.datos.sex,
           age: this.datos.age,
         };
         this.peticiones.url = "client/update/" + this.datos.dni;

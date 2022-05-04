@@ -9,6 +9,7 @@ import Monitores from '../components/Monitores'
 import CrearSesion from '../components/CrearSesion.vue'
 import MisContratos from '../components/MisContratos.vue'
 import CrearContratos from '../components/CrearContrato.vue'
+import Chat from '../components/Chat.vue'
 import Prueba from '../components/Prueba.vue'
 
 
@@ -69,7 +70,11 @@ const routes = [
     name: 'misContratos',
     component: MisContratos
   },
-  
+  {
+    path: '/chat',
+    name: 'chat',
+    component: Chat
+  },
 
 ]
 

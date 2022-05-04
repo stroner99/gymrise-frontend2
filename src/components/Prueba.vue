@@ -1,11 +1,7 @@
 <template>
   <div>
-    <h2>Prueba</h2>
-    <div v-for="skill in skills" :key="skill">
-      <input type="checkbox" :id="skill" :value="skill" v-model="skills_selected">
-      <label class="input-helper input-helper--checkbox" :for="skill">{{skill}}</label>
-    </div>
-    {{skills_selected}}
+    <b-badge>Pendiente</b-badge>
+
   </div>
 </template>
 

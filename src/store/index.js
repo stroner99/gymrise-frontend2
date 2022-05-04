@@ -95,7 +95,7 @@ export default new Vuex.Store({
           default:
             break;
         }
-      // console.log(response);
+      console.log(response);
       return response;
     },
     unir_fecha: (state) => (tiempo, fecha) => {
