@@ -33,7 +33,7 @@
           <div
             style="
               display: grid;
-              grid-template-columns: minmax(100px, auto) minmax(100px, auto) minmax(100px, auto);
+              grid-template-columns: minmax(100px, auto) minmax(100px, auto);
               margin-block: 6px;
               gap: 20px;
             "
@@ -124,9 +124,9 @@
                 </div>
               </div>
             </b-modal>
-              <b-button variant="outline-dark" v-b-modal="'chat-entrenador-' + trainer.dni"
-              >Chat</b-button
-            >
+              <!-- <b-button variant="outline-dark" v-b-modal="'chat-entrenador-' + trainer.dni"
+              >Chat</b-button> -->
+            
             <b-modal
               :id="'chat-entrenador-' + trainer.dni"
               :title="trainer.name + ' ' + trainer.surname"
@@ -156,6 +156,7 @@
         </div>
       </div>
     </div>
+    <b-modal v-model="modalConfirmacion" ok-only><h4>{{modalConfirmacionMsg}}</h4></b-modal>
   </div>
 </template>
 
@@ -180,6 +181,8 @@ export default {
         socket_server: null,
         socket_client: null,
       },
+      modalConfirmacion: false,
+      modalConfirmacionMsg: "",
     };
   },
   async created() {
@@ -232,6 +235,30 @@ export default {
         }
       }
       console.log(response);
+    },
+       inscribirseSesion(sesion_id) {
+      this.peticiones.url =
+        "training-session/session/" +
+        sesion_id +
+        "/client/" +
+        this.$cookies.get("user").dni;
+      this.peticiones.post = {
+        id: sesion_id,
+        dni: this.$cookies.get("user").dni,
+      };
+      let response = this.$store.getters.llamada_api(
+        this.peticiones.url,
+        "POST",
+        this.peticiones.post,
+        this.peticiones.headers
+      );
+      // if(response.status==201){
+        this.sesiones = this.sesiones.filter(function(item){
+            return item.id !== sesion_id;
+          });
+          this.modalConfirmacion = true;
+         this.modalConfirmacionMsg = "Te has inscrito correctamente a la sesión";
+      // }
     },
     mostrarChat(){
       

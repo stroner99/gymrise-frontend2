@@ -86,6 +86,7 @@
         >
       </b-form>
     </div>
+    <b-modal v-model="modalConfirmacion" ok-only><h4>{{modalConfirmacionMsg}}</h4></b-modal>
   </div>
 </template>
 
@@ -110,6 +111,8 @@ export default {
         url: "",
         post: null,
       },
+      modalConfirmacion: false,
+      modalConfirmacionMsg: "",
     };
   },
   methods: {

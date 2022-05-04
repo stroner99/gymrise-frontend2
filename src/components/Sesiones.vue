@@ -74,6 +74,7 @@
         </div>
       </div>
     </div>
+    <b-modal v-model="modalConfirmacion" ok-only><h4>{{modalConfirmacionMsg}}</h4></b-modal>
   </div>
 </template>
 
@@ -87,6 +88,8 @@ export default {
         url: "",
         post: null,
       },
+      modalConfirmacion: false,
+      modalConfirmacionMsg: "",
     };
   },
   async created() {
@@ -134,9 +137,13 @@ export default {
         this.peticiones.post,
         this.peticiones.headers
       );
-      this.sesiones = this.sesiones.filter(function(item){
-          return item.id !== sesion_id;
-        });
+      // if(response.status=="201"){
+        this.sesiones = this.sesiones.filter(function(item){
+            return item.id !== sesion_id;
+          });
+          this.modalConfirmacion = true;
+         this.modalConfirmacionMsg = "Te has inscrito correctamente a la sesión";
+      // }  
     },
   },
   computed: {},

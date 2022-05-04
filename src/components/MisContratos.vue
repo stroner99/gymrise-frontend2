@@ -82,6 +82,7 @@
         </div>
       </div>
     </div>
+    <b-modal v-model="modalConfirmacion" ok-only><h4>{{modalConfirmacionMsg}}</h4></b-modal>
   </div>
 </template>
 
@@ -96,6 +97,9 @@ export default {
         post: null,
       },
       tipo: "",
+      modalConfirmacion: false,
+      modalConfirmacionMsg: "",
+
     };
   },
   async created() {
@@ -159,7 +163,16 @@ export default {
         this.peticiones.post,
         this.peticiones.headers
       );
-      contrato.accepted = aceptado;
+      // if(response.status==200){
+        this.modalConfirmacion = true;
+        if(aceptado){
+          this.modalConfirmacionMsg = "Has aceptado el contrato " + contrato_id;
+        }
+        else{
+          this.modalConfirmacionMsg = "Has rechazado el contrato " + contrato_id;
+        }
+        contrato.accepted = aceptado;
+      // }
     },
     borrarSesion(contrato_id) {
       this.peticiones.url =
@@ -170,9 +183,13 @@ export default {
         this.peticiones.post,
         this.peticiones.headers
       );
-      this.contratos = this.contratos.filter(function(item){
-          return item.id !== sesion_id;
-        });
+      // if(response.status==200){
+        this.contratos = this.contratos.filter(function(item){
+            return item.id !== contrato_id;
+          });
+        this.modalConfirmacion = true;
+        this.modalConfirmacionMsg = "Se ha borrado el contrato" + contrato_id;
+      // }
     },
   },
   computed: {},

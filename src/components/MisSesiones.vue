@@ -73,6 +73,7 @@
         </div>
       </div>
     </div>
+    <b-modal v-model="modalConfirmacion" ok-only><h4>Has anulado la sesión</h4></b-modal>
   </div>
 </template>
 
@@ -86,6 +87,7 @@ export default {
         url: "",
         post: null,
       },
+      modalConfirmacion: false,
     };
   },
   async created() {
@@ -135,9 +137,12 @@ export default {
         this.peticiones.post,
         this.peticiones.headers
       );
-      this.sesiones = this.sesiones.filter(function(item){
-          return item.id !== sesion_id;
-        });
+      // if(response.status == '200'){
+        this.sesiones = this.sesiones.filter(function(item){
+            return item.id !== sesion_id;
+          });
+        this.modalConfirmacion = true;
+      // }
     },
     crearSesion() {
       window.location.href = "/crearsesion";
