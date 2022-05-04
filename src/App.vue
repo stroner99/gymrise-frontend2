@@ -9,7 +9,7 @@
       variant="dark"
     >
       <b-navbar-brand disabled style="margin-left: 20px">
-        Hola {{ this.$cookies.get("user").name }}</b-navbar-brand
+        Hola {{ this.$cookies.get("tipo") }} {{ this.$cookies.get("user").name }}</b-navbar-brand
       >
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
@@ -23,7 +23,7 @@
             <b-nav-item v-if="this.$cookies.get('tipo')=='Deportista'" :to="{ name: 'monitores' }">Monitores</b-nav-item>
             <b-nav-item :to="{ name: 'misContratos' }">Mis Contratos</b-nav-item>
             <b-nav-item v-if="this.$cookies.get('tipo')=='Entrenador'" :to="{ name: 'crearContrato' }">Crear Contrato</b-nav-item>
-            <b-nav-item v-b-modal="'notificaciones'">Notificaciones</b-nav-item>
+            <b-nav-item v-b-modal="'notificaciones'">Avisos</b-nav-item>
             <b-nav-item @click="salir">Salir</b-nav-item>
           </b-navbar-nav>
         </b-container>

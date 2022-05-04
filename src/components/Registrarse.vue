@@ -131,6 +131,7 @@
                 type="number"
                 placeholder="Altura (cm)"
                 required
+                min="1"
               ></b-form-input>
             </b-form-group>
             <p>Peso(Kg):</p>
@@ -141,6 +142,7 @@
                 type="number"
                 placeholder="Peso (Kg)"
                 required
+                min="1"
               ></b-form-input>
             </b-form-group>
           </div>

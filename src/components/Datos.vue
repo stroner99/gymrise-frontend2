@@ -122,6 +122,7 @@
                 type="number"
                 placeholder="Altura (cm)"
                 required
+                min="1"
               ></b-form-input>
             </b-form-group>
             <p>Peso:</p>
@@ -131,6 +132,7 @@
                 v-model="datos.weight"
                 type="number"
                 placeholder="Peso (Kg)"
+                min="1"
                 required
               ></b-form-input>
             </b-form-group>
