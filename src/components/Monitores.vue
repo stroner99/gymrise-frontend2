@@ -124,8 +124,8 @@
                 </div>
               </div>
             </b-modal>
-              <!-- <b-button variant="outline-dark" v-b-modal="'chat-entrenador-' + trainer.dni"
-              >Chat</b-button> -->
+              <b-button variant="outline-dark" v-b-modal="'chat-entrenador-' + trainer.dni"
+              >Chat</b-button>
             
             <b-modal
               :id="'chat-entrenador-' + trainer.dni"

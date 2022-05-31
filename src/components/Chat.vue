@@ -59,7 +59,6 @@
   </div>
 </template>
 
-<script src="/socket.io/socket.io.js"></script>
 <script>
 import { io } from 'socket.io-client';
 export default {
@@ -99,29 +98,26 @@ this.tipo = this.$cookies.get("tipo");
       null,
       this.peticiones.headers
     );
-    // this.clients = response.data;
+    this.clients = response.data;
+    console.log(this.clients);
+
     
   },
   methods: {    
     mostrarChat(){
-      
-      this.chat.socket_server = io('http://localhost:3000/chat-server', 
-      {
-        extraHeaders: {
-              Authorization: "Bearer " + this.$cookies.get("token")
-            }
-      }
-      );
-      this.chat.socket_client = io('http://localhost:3000/chat-client', 
-      {
-        extraHeaders: {
-              Authorization: "Bearer " + this.$cookies.get("token")
-            }
-      }
-      );
-      this.chat.socket_server.on('msgToClient', (message) => {
-        this.receivedMessage(message)
-      })
+      this.socket = io('http://localhost:3000');
+      const now = new Date();
+      const data = {
+        dni_client: '11111111D',
+        dni_trainer: '11111111B',
+        text: 'prueba',
+        date_time: new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds()),
+      };
+      console.log(data)
+      this.socket.emit('chat-server', data);
+      this.socket.on('chat-client/11111111B/11111111D', (data) => {
+        console.log(data);
+      });
     },
      sendMessage(trainer_dni) {
       const now = new Date();
