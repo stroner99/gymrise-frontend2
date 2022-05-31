@@ -3,10 +3,14 @@ import Vuex from 'vuex'
 import axios from 'axios';
 Vue.use(Vuex)
 
+const hostname = 'http://localhost:3000';
+
 export default new Vuex.Store({
-  state: {
-  },
   getters: {
+    hostname: (state) => () => {
+      console.log("llega aqui");
+      return hostname;
+    },
     llamada_api: (state) => async (path, method, post, headers) => {
       console.log(path)
       console.log(method);
@@ -15,8 +19,8 @@ export default new Vuex.Store({
       let response;
       if (path == "")
         return "";
-      // var url = "http://localhost:3000/" + path;
-      var url = "http://localhost:3000/" + path;
+      var url = hostname + "/" + path;
+      console.log(url);
         switch (method) {
           case 'GET':
             if (headers)
@@ -100,9 +104,6 @@ export default new Vuex.Store({
     },
     unir_fecha: (state) => (tiempo, fecha) => {
       return fecha + "T" + tiempo + ".000Z";
-    },
-    unir_fecha_exacta: (state) => (tiempo, fecha) => {
-      return fecha + "T" + tiempo + "Z";
     },
     separar_fecha: (state) => (fecha_unido) => {
       var fecha = fecha_unido.substring(0, 10);
