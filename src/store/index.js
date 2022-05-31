@@ -101,6 +101,9 @@ export default new Vuex.Store({
     unir_fecha: (state) => (tiempo, fecha) => {
       return fecha + "T" + tiempo + ".000Z";
     },
+    unir_fecha_exacta: (state) => (tiempo, fecha) => {
+      return fecha + "T" + tiempo + "Z";
+    },
     separar_fecha: (state) => (fecha_unido) => {
       var fecha = fecha_unido.substring(0, 10);
       var tiempo = fecha_unido.substring(11, 19);

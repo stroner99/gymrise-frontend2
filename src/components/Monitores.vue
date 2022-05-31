@@ -160,7 +160,6 @@
   </div>
 </template>
 
-<script src="/socket.io/socket.io.js"></script>
 <script>
 import { io } from 'socket.io-client';
 export default {
@@ -262,20 +261,20 @@ export default {
     },
     mostrarChat(){
       
-      this.chat.socket_server = io('http://localhost:3000/chat-server', 
-      {
-        extraHeaders: {
-              Authorization: "Bearer " + this.$cookies.get("token")
-            }
-      }
-      );
-      this.chat.socket_client = io('http://localhost:3000/chat-client', 
-      {
-        extraHeaders: {
-              Authorization: "Bearer " + this.$cookies.get("token")
-            }
-      }
-      );
+      // this.chat.socket_server = io('http://localhost:3000/chat-server', 
+      // {
+      //   extraHeaders: {
+      //         Authorization: "Bearer " + this.$cookies.get("token")
+      //       }
+      // }
+      // );
+      // this.chat.socket_client = io('http://localhost:3000/chat-client', 
+      // {
+      //   extraHeaders: {
+      //         Authorization: "Bearer " + this.$cookies.get("token")
+      //       }
+      // }
+      // );
       this.chat.socket_client.on('chat-client', (message) => {
         this.receivedMessage(message)
       })
@@ -293,7 +292,7 @@ export default {
       }
       console.log(trainer_dni);
       console.log(message);
-      this.chat.socket_server.emit('chat-server', message)
+      // this.chat.socket_server.emit('chat-server', message)
       this.chat.text = ''
       }
     },

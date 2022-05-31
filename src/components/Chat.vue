@@ -105,7 +105,16 @@ this.tipo = this.$cookies.get("tipo");
   },
   methods: {    
     mostrarChat(){
-      this.socket = io('http://localhost:3000');
+      if(this.socket!=null){
+        this.socket.disconnect();
+      };
+      this.socket = io("http://localhost:3000", { forceNew: true });
+      console.log(this.socket);
+      this.socket.on('chat-client/11111111B/11111111D', (data) => {
+        this.receivedMessage(data.text);
+      });
+    },
+     sendMessage() {
       const now = new Date();
       const data = {
         dni_client: '11111111D',
@@ -115,27 +124,6 @@ this.tipo = this.$cookies.get("tipo");
       };
       console.log(data)
       this.socket.emit('chat-server', data);
-      this.socket.on('chat-client/11111111B/11111111D', (data) => {
-        console.log(data);
-      });
-    },
-     sendMessage(trainer_dni) {
-      const now = new Date();
-      var mes = now.getMonth() + 1;
-      var fecha = now.getFullYear() + "-" + mes + "-" + now.getDate();
-      var hora = now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds();
-      if(this.validateInput()) {
-        const message = {
-        date_time: this.$store.getters.unir_fecha(hora, fecha),
-        dni_trainer: trainer_dni,
-        dni_client: this.$cookies.get("user").dni,
-        text: this.chat.text
-      }
-      console.log(trainer_dni);
-      console.log(message);
-      this.chat.socket_client.emit('msgToServer', message)
-      this.chat.text = ''
-      }
     },
     receivedMessage(message) {
       console.log(message);
