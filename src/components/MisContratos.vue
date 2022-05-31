@@ -103,8 +103,6 @@ export default {
     };
   },
   async created() {
-    // falla el 403
-    //falta mejorar el current para que solo salga los que están ahora y no ha contrato el cliente
     this.peticiones.headers = {
       headers: {
         Authorization: "Bearer " + this.$cookies.get("token"),
@@ -163,16 +161,14 @@ export default {
         this.peticiones.post,
         this.peticiones.headers
       );
-      // if(response.status==200){
         this.modalConfirmacion = true;
         if(aceptado){
-          this.modalConfirmacionMsg = "Has aceptado el contrato " + contrato_id;
+          this.modalConfirmacionMsg = "Has aceptado el contrato " + contrato.title;
         }
         else{
-          this.modalConfirmacionMsg = "Has rechazado el contrato " + contrato_id;
+          this.modalConfirmacionMsg = "Has rechazado el contrato " + contrato.title;
         }
         contrato.accepted = aceptado;
-      // }
     },
     borrarSesion(contrato_id) {
       this.peticiones.url =
@@ -183,13 +179,11 @@ export default {
         this.peticiones.post,
         this.peticiones.headers
       );
-      // if(response.status==200){
         this.contratos = this.contratos.filter(function(item){
             return item.id !== contrato_id;
           });
         this.modalConfirmacion = true;
         this.modalConfirmacionMsg = "Se ha borrado el contrato" + contrato_id;
-      // }
     },
   },
   computed: {},

@@ -15,7 +15,7 @@
       <div v-if="clients.length==0">
         <h2>No hay chats</h2>
       </div>
-      <div v-for="client in clients" :key="client.dni" style="display:grid; grid-template-columns: minmax(auto, 300px) minmax(auto, 300px); gap:20px">
+      <div style="display:grid; grid-template-columns: minmax(auto, 300px) minmax(auto, 300px); gap:20px">
         <div
           style="
             padding: 4px;
@@ -25,6 +25,7 @@
             margin-block: 10px;
             display: flex;
           "
+          v-for="client in clients" :key="client.dni"
         >
             <p>{{client.name}} {{client.surname}}</p>
             <b-button variant="outline-dark" v-b-modal="'chat-entrenador-' + client.dni">Chat</b-button >
@@ -35,16 +36,18 @@
               @show="mostrarChat(client.dni)"
             >
                   <div>
-                      <div id="status"></div>
+                      <div id="status" style="text-align: right;">
+                        <b-button class="btn btn-dark" v-if="tipo=='Entrenador'" @click="crearContrato(client.dni)">Crear Contrato</b-button>
+                      </div>
                       <div id="chat">
                           <br>
                           <div class="card">
                               <div id="messages" class="card-block">
                                   <ul>
                                       <li style="list-style: none;" v-for="message of chat.messages" :key="message.id">
-                                        <!-- <p :style="posicion_mensaje(message.dni)"> -->
-                                          {{ message }}
-                                        <!-- </p> -->
+                                        <p :style="posicion_mensaje(message.sender)">
+                                          {{ message.text }}
+                                        </p>
                                       </li>
                                   </ul>
                               </div>
@@ -68,7 +71,8 @@ import { io } from 'socket.io-client';
 export default {
   data: function data() {
     return {
-      clients: [{name: "to", surname:"prueba", dni:"10100101L"}],
+      tipo: '',
+      clients: [],
       peticiones: {
         headers: null,
         url: "",
@@ -116,10 +120,16 @@ export default {
         text: '',
         messages: [],
       }
+      let cliente = "";
+      let entrenador = "";
       if (this.tipo == "Entrenador") {
         this.peticiones.url = "chat/client/" + dni + "/trainer/" + this.$cookies.get("user").dni;
+        cliente = dni;
+        entrenador = this.$cookies.get("user").dni;
       } else if (this.tipo == "Deportista") {
         this.peticiones.url = "chat/client/" + this.$cookies.get("user").dni + "/trainer/" + dni;
+        cliente = this.$cookies.get("user").dni;
+        entrenador = dni;
       }
       let response = await this.$store.getters.llamada_api(
         this.peticiones.url,
@@ -134,19 +144,32 @@ export default {
       };
       this.socket = io(this.$store.getters.hostname(), { forceNew: true });
       console.log(this.socket);
-      this.socket.on('chat-client/11111111B/11111111D', (data) => {
+      console.log('chat-client/' + entrenador + '/' + cliente);
+      this.socket.on('chat-client/' + entrenador + '/' + cliente, (data) => {
         this.receivedMessage(data);
       });
     },
-     sendMessage() {
+     sendMessage(dni) {
        if(this.validateInput){
          const now = new Date();
-         const data = {
-           dni_client: '11111111D',
-           dni_trainer: '11111111B',
-           text: 'prueba',
+         let data = "";
+        if (this.tipo == "Entrenador") {
+        data = {
+           dni_client: dni,
+           dni_trainer: this.$cookies.get("user").dni,
+           sender: this.$cookies.get("user").dni,
+           text: this.chat.text,
            date_time: new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds()),
          };
+        } else if (this.tipo == "Deportista") {
+          data = {
+           dni_client: this.$cookies.get("user").dni,
+           dni_trainer: dni,
+           sender: this.$cookies.get("user").dni,
+           text: this.chat.text,
+           date_time: new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds()),
+          };
+        }
          console.log(data)
          this.socket.emit('chat-server', data);
          this.chat.text = "";          
@@ -159,6 +182,13 @@ export default {
     },
     validateInput() {
       return this.chat.text.length > 0
+    },
+    crearContrato(dni){
+      console.log(dni);
+      this.$router.push({ 
+        name: 'crearContrato', 
+        params: {dni_client: dni }
+      });
     }
   },
   computed: {},

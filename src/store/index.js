@@ -4,11 +4,11 @@ import axios from 'axios';
 Vue.use(Vuex)
 
 const hostname = 'http://localhost:3000';
+// const hostname = 'https://gymrise-backend.herokuapp.com/';
 
 export default new Vuex.Store({
   getters: {
     hostname: (state) => () => {
-      console.log("llega aqui");
       return hostname;
     },
     llamada_api: (state) => async (path, method, post, headers) => {

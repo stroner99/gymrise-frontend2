@@ -33,7 +33,7 @@
           <div
             style="
               display: grid;
-              grid-template-columns: minmax(100px, auto) minmax(100px, auto);
+              grid-template-columns: minmax(100px, auto)  minmax(100px, auto) minmax(100px, auto);
               margin-block: 6px;
               gap: 20px;
             "
@@ -128,10 +128,10 @@
               >Chat</b-button>
             
             <b-modal
-              :id="'chat-entrenador-' + client.dni"
-              :title="client.name + ' ' + client.surname"
+              :id="'chat-entrenador-' + trainer.dni"
+              :title="trainer.name + ' ' + trainer.surname"
               ok-only
-              @show="mostrarChat(client.dni)"
+              @show="mostrarChat(trainer.dni)"
             >
                   <div>
                       <div id="status"></div>
@@ -141,9 +141,9 @@
                               <div id="messages" class="card-block">
                                   <ul>
                                       <li style="list-style: none;" v-for="message of chat.messages" :key="message.id">
-                                        <!-- <p :style="posicion_mensaje(message.dni)"> -->
-                                          {{ message }}
-                                        <!-- </p> -->
+                                        <p :style="posicion_mensaje(message.sender)">
+                                          {{ message.text }}
+                                        </p>
                                       </li>
                                   </ul>
                               </div>
@@ -151,7 +151,7 @@
                           <br>
                           <div style="display: flex;">
                           <input class="form-control" v-model="chat.text" placeholder="Escribe un mensaje...">
-                          <b-button style="padding-inline:25px; margin-left: 10px" variant="dark" @click.prevent="sendMessage(client.dni)">Enviar</b-button>
+                          <b-button style="padding-inline:25px; margin-left: 10px" variant="dark" @click.prevent="sendMessage(trainer.dni)">Enviar</b-button>
                           </div>
                       </div>
                   </div>
@@ -239,7 +239,7 @@ export default {
       }
       console.log(response);
     },
-       inscribirseSesion(sesion_id) {
+    inscribirseSesion(sesion_id) {
       this.peticiones.url =
         "training-session/session/" +
         sesion_id +
@@ -263,15 +263,28 @@ export default {
          this.modalConfirmacionMsg = "Te has inscrito correctamente a la sesión";
       // }
     },
-   async mostrarChat(dni){
+    posicion_mensaje(dni){
+      if(this.$cookies.get("user").dni==dni){
+        return "text-align: end;"
+      }
+      return "text-align: start;"
+    },
+    async mostrarChat(dni){
       this.chat = {
         text: '',
         messages: [],
       }
+      let cliente = "";
+      let entrenador = "";
+      this.tipo = this.$cookies.get("tipo");
       if (this.tipo == "Entrenador") {
         this.peticiones.url = "chat/client/" + dni + "/trainer/" + this.$cookies.get("user").dni;
+        cliente = dni;
+        entrenador = this.$cookies.get("user").dni;
       } else if (this.tipo == "Deportista") {
         this.peticiones.url = "chat/client/" + this.$cookies.get("user").dni + "/trainer/" + dni;
+        cliente = this.$cookies.get("user").dni;
+        entrenador = dni;
       }
       let response = await this.$store.getters.llamada_api(
         this.peticiones.url,
@@ -286,24 +299,37 @@ export default {
       };
       this.socket = io(this.$store.getters.hostname(), { forceNew: true });
       console.log(this.socket);
-      this.socket.on('chat-client/11111111B/11111111D', (data) => {
+      console.log('chat-client/' + entrenador + '/' + cliente);
+      this.socket.on('chat-client/' + entrenador + '/' + cliente, (data) => {
         this.receivedMessage(data);
       });
     },
-     sendMessage() {
+     sendMessage(dni) {
        if(this.validateInput){
          const now = new Date();
-         const data = {
-           dni_client: '11111111D',
-           dni_trainer: '11111111B',
-           text: 'prueba',
+         let data = "";
+        if (this.tipo == "Entrenador") {
+        data = {
+           dni_client: dni,
+           dni_trainer: this.$cookies.get("user").dni,
+           sender: this.$cookies.get("user").dni,
+           text: this.chat.text,
            date_time: new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds()),
          };
+        } else if (this.tipo == "Deportista") {
+          data = {
+           dni_client: this.$cookies.get("user").dni,
+           dni_trainer: dni,
+           sender: this.$cookies.get("user").dni,
+           text: this.chat.text,
+           date_time: new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds()),
+          };
+        }
          console.log(data)
          this.socket.emit('chat-server', data);
          this.chat.text = "";          
        }
-    },
+     },
     receivedMessage(message) {
       console.log(message);
       this.chat.messages.push(message)

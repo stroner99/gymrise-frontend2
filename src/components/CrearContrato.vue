@@ -74,17 +74,6 @@
             ></b-form-input>
           </b-form-group>
         </div>
-        <div style="display: grid; grid-template-columns: 200px 350px">
-          <p>DNI Cliente:</p>
-          <b-form-group style="margin-block: 10px; width: 100%">
-            <b-form-input
-              style="border-radius: 20px; border: 1px solid rgb(0 0 0 / 50%)"
-              v-model="dni_client"
-              type="text"
-              required
-            ></b-form-input>
-          </b-form-group>
-        </div>
         <b-button
           style="
             margin-top: 20px;
@@ -95,7 +84,7 @@
           "
           @click="crearContrato()"
           >Crear Contrato</b-button
-        >
+        > 
       </b-form>
     </div>
   </div>
@@ -113,7 +102,6 @@ export default {
       price: 0,
       date_s: "",
       date_e: "",
-      dni_client: "",
       min_d: minDate,
       peticiones: {
         headers: null,
@@ -137,7 +125,7 @@ export default {
         description: this.description,
         price: this.price,
         dni_trainer: this.$cookies.get("user").dni,
-        dni_client: this.dni_client,
+        dni_client: this.$route.params.dni_client,
         accepted: false
       };
       this.peticiones.url = "contract/add"

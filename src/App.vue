@@ -22,7 +22,7 @@
             <b-nav-item v-if="this.$cookies.get('tipo')=='Deportista'" :to="{ name: 'sesion' }">Sesiones Disponibles</b-nav-item>
             <b-nav-item v-if="this.$cookies.get('tipo')=='Deportista'" :to="{ name: 'monitores' }">Monitores</b-nav-item>
             <b-nav-item :to="{ name: 'misContratos' }">Mis Contratos</b-nav-item>
-            <b-nav-item v-if="this.$cookies.get('tipo')=='Entrenador'" :to="{ name: 'crearContrato' }">Crear Contrato</b-nav-item>
+            <b-nav-item :to="{ name: 'chat' }">Chat</b-nav-item>
             <b-nav-item v-b-modal="'notificaciones'">Avisos</b-nav-item>
             <b-nav-item @click="salir">Salir</b-nav-item>
           </b-navbar-nav>
