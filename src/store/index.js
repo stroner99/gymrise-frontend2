@@ -3,8 +3,8 @@ import Vuex from 'vuex'
 import axios from 'axios';
 Vue.use(Vuex)
 
-const hostname = 'http://localhost:3000';
-// const hostname = 'https://gymrise-backend.herokuapp.com/';
+// const hostname = 'http://localhost:3000';
+const hostname = 'https://gymrise-backend.herokuapp.com';
 
 export default new Vuex.Store({
   getters: {

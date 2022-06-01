@@ -263,7 +263,7 @@ export default {
           description: this.datos.description,
           height: this.datos.height,
           weight: this.datos.weight,
-          sex: this.datos.sexo,
+          sex: this.datos.sex,
           age: this.datos.age,
         };
         this.peticiones.url = "client/add";
